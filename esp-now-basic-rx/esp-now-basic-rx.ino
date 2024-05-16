@@ -38,11 +38,16 @@
 // Structure example to send data
 // Must match the receiver structure
 typedef struct struct_message {
-  char a[32];
-  int b;
-  float c;
-  bool d;
+  char msg[32];
+  int num;
+  float data;
+  bool flag;
 } struct_message;
+
+// Create a struct_message called myData
+struct_message myData;
+
+
 
 
 // Init ESP Now with fallback
@@ -50,8 +55,7 @@ void InitESPNow() {
   WiFi.disconnect();
   if (esp_now_init() == ESP_OK) {
     Serial.println("ESPNow Init Success");
-  }
-  else {
+  } else {
     Serial.println("ESPNow Init Failed");
     // Retry InitESPNow, add a counte and then restart?
     // InitESPNow();
@@ -68,7 +72,8 @@ void configDeviceAP() {
     Serial.println("AP Config failed.");
   } else {
     Serial.println("AP Config Success. Broadcasting with AP: " + String(SSID));
-    Serial.print("AP CHANNEL "); Serial.println(WiFi.channel());
+    Serial.print("AP CHANNEL ");
+    Serial.println(WiFi.channel());
   }
 }
 
@@ -80,7 +85,8 @@ void setup() {
   // configure device AP mode
   configDeviceAP();
   // This is the mac address of the Slave in AP Mode
-  Serial.print("AP MAC: "); Serial.println(WiFi.softAPmacAddress());
+  Serial.print("AP MAC: ");
+  Serial.println(WiFi.softAPmacAddress());
   // Init ESPNow with a fallback logic
   InitESPNow();
   // Once ESPNow is successfully Init, we will register for recv CB to
@@ -89,14 +95,31 @@ void setup() {
 }
 
 // callback when data is recv from Master
-void OnDataRecv(const uint8_t *mac_addr, const uint8_t *data, int data_len) {
+void OnDataRecv(const uint8_t *mac_addr, const uint8_t *incomingData, int data_len) {
+  // print MAC address
   char macStr[18];
   snprintf(macStr, sizeof(macStr), "%02x:%02x:%02x:%02x:%02x:%02x",
            mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
-  Serial.print("Last Packet Recv from: "); Serial.println(macStr);
-  Serial.print("Last Packet Recv Data: "); Serial.println(*data);
-  Serial.println("");
+  Serial.print("\n\nLast Packet Recv from: ");
+  Serial.println(macStr);
+  Serial.println("Last Packet Recv Data: ");
+  // parse data
+  memcpy(&myData, incomingData, sizeof(myData));
+  printMessage(myData);
+  Serial.print("Bytes Received: ");
+  Serial.print(data_len);
 }
+
+
+
+void printMessage(struct_message messageData) {
+  char messageBuffer[64];
+  char floatBuffer[8];
+  dtostrf(messageData.data, 4, 2, floatBuffer);
+  sprintf(messageBuffer, "msg: %s, num: %i, data: %s, flag: %i", messageData.msg, messageData.num, floatBuffer, messageData.flag);
+  Serial.println(messageBuffer);
+}
+
 
 void loop() {
   // Chill

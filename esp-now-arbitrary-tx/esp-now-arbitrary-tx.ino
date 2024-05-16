@@ -66,12 +66,14 @@ esp_now_peer_info_t slave;
 // Structure example to send data
 // Must match the receiver structure
 typedef struct struct_message {
-  char a[32];
-  int b;
-  float c;
-  bool d;
+  char msg[32];
+  int num;
+  float data;
+  bool flag;
 } struct_message;
 
+// Create a struct_message called myData
+struct_message myData;
 
 
 // Init ESP Now with fallback
@@ -230,20 +232,30 @@ void deletePeer() {
 }
 
 uint8_t data = 0;
+bool flag = false;
 // send data
 void sendData() {
+
   // Make up some data
-  char dataBuffer[8];
   data++;
+  flag = !flag;
+  // Package data as required
+  char dataBuffer[32];
+  sprintf(dataBuffer, "Data: %2i, %2i ", data, data + 1);
+  strcpy(myData.msg, dataBuffer);
+  myData.num = data;
+  myData.data = 1.2;
+  myData.flag = flag;
 
-  sprintf(dataBuffer, "D:%2i", data);
 
 
-
+  // send data
   const uint8_t *peer_addr = slave.peer_addr;
   Serial.print("Sending: ");
   Serial.println(dataBuffer);
-  esp_err_t result = esp_now_send(peer_addr, (uint8_t *)&dataBuffer, sizeof(dataBuffer)); //(uint8_t *)
+  esp_err_t result = esp_now_send(peer_addr, (uint8_t *)&myData, sizeof(myData));
+
+  // Analise result
   Serial.print("Send Status: ");
   if (result == ESP_OK) {
     Serial.println("Success");
