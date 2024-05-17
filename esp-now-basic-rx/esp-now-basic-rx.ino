@@ -34,6 +34,9 @@
 
 #define CHANNEL 1
 
+#define PRINT_RX_METADATA false
+#define PRINT_MSG_ONLY true
+
 
 // Structure example to send data
 // Must match the receiver structure
@@ -66,7 +69,7 @@ void InitESPNow() {
 
 // config AP SSID
 void configDeviceAP() {
-  const char *SSID = "Slave_1";
+  const char *SSID = "moduleRx";
   bool result = WiFi.softAP(SSID, "Slave_1_Password", CHANNEL, 0);
   if (!result) {
     Serial.println("AP Config failed.");
@@ -100,24 +103,32 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *incomingData, int data_l
   char macStr[18];
   snprintf(macStr, sizeof(macStr), "%02x:%02x:%02x:%02x:%02x:%02x",
            mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+#if PRINT_RX_METADATA == true
   Serial.print("\n\nLast Packet Recv from: ");
   Serial.println(macStr);
   Serial.println("Last Packet Recv Data: ");
+#endif
   // parse data
   memcpy(&myData, incomingData, sizeof(myData));
   printMessage(myData);
+#if PRINT_RX_METADATA == true
   Serial.print("Bytes Received: ");
   Serial.print(data_len);
+#endif
 }
 
 
 
 void printMessage(struct_message messageData) {
+#if PRINT_MSG_ONLY == true
+  Serial.println(messageData.msg);
+#else 
   char messageBuffer[64];
   char floatBuffer[8];
   dtostrf(messageData.data, 4, 2, floatBuffer);
   sprintf(messageBuffer, "msg: %s, num: %i, data: %s, flag: %i", messageData.msg, messageData.num, floatBuffer, messageData.flag);
   Serial.println(messageBuffer);
+#endif
 }
 
 
