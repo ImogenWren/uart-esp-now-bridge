@@ -40,8 +40,7 @@ void ScanForRx() {
   // reset on each scan
   bool moduleRxFound = 0;
   memset(&moduleRx, 0, sizeof(moduleRx));
-
-  Serial.println("");
+//  Serial.println("");
   if (scanResults == 0) {
     Serial.println("No WiFi devices in AP Mode found");
   } else {
@@ -101,7 +100,9 @@ void ScanForRx() {
     }
   }
   if (moduleRxFound) {
+#if PRINT_MODULEFOUND == true
     Serial.println("moduleRx Found, processing..");
+#endif
   } else {
     Serial.println("moduleRx Not Found, trying again.");
   }

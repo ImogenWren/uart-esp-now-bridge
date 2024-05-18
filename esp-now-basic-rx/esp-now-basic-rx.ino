@@ -37,6 +37,16 @@
 #define PRINT_RX_METADATA false
 #define PRINT_MSG_ONLY true
 
+#include <ledObject.h>  // see https://github.com/PanGalacticTech/ledObject_library
+#define PWM_PIN 2
+#define LED_CH 0
+#define PWM_FREQ 5000
+#define PWM_RESO 8
+fadeLED led(PWM_PIN, LED_CH, PWM_FREQ, PWM_RESO);  // Constructor for ESP Boards Includes (PIN, CHANNEL, PWM FREQUENCY, RESOLUTION)
+#define INITIAL_BRIGHTNESS 50                      //defines a starting brightness for fadeLED object. byte value from 0 - 255 valid
+#define MIN_BRIGHT 50
+#define MAX_BRIGHT 255
+#define TIME_MS 400
 
 // Structure example to send data
 // Must match the receiver structure
@@ -82,7 +92,10 @@ void configDeviceAP() {
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("ESPNow/Basic/Slave Example");
+  Serial.println("ESPNow - Basic Receiver");
+  led.setup(INITIAL_BRIGHTNESS);
+  led.turnOn();  // Heartbeat LED
+  led.startFading(MIN_BRIGHT, MAX_BRIGHT, TIME_MS);
   //Set device in AP mode to begin with
   WiFi.mode(WIFI_AP);
   // configure device AP mode
@@ -121,8 +134,8 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *incomingData, int data_l
 
 void printMessage(struct_message messageData) {
 #if PRINT_MSG_ONLY == true
-  Serial.println(messageData.msg);
-#else 
+  Serial.print(messageData.msg);  //  doesnt need to println
+#else
   char messageBuffer[64];
   char floatBuffer[8];
   dtostrf(messageData.data, 4, 2, floatBuffer);
@@ -132,6 +145,11 @@ void printMessage(struct_message messageData) {
 }
 
 
+bool flag = true;
 void loop() {
-  // Chill
+  if (flag) {
+    Serial.println("Waiting for ESPnow Data Packet..");
+    flag = false;
+  }
+ // led.performFades();  // Heartbeat LED
 }

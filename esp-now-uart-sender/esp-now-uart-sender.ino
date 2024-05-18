@@ -78,6 +78,7 @@ esp_now_peer_info_t moduleRx;
 #define CHANNEL 1
 #define PRINT_SCAN_SUMMARY false
 #define PRINTSCANRESULTS false
+#define PRINT_MODULEFOUND false
 
 #define DELETEBEFOREPAIR 0
 
@@ -89,7 +90,7 @@ esp_now_peer_info_t moduleRx;
 // Structure example to send data
 // Must match the receiver structure
 typedef struct struct_message {
-  char msg[32];
+  char msg[64];
   int num;
   float data;
   bool flag;
@@ -125,6 +126,9 @@ byte strLength;
   routine is run between each time loop() runs, so using delay inside loop can
   delay response. Multiple bytes of data may be available.
 */
+
+#define UART_MSG_SIZE 64
+
 void serialEvent() {
   // here we could use our MySerial normally
   while (mySerial.available() > 0) {
@@ -138,10 +142,10 @@ void serialEvent() {
     byteCount++;  // if the incoming character is a newline, set a flag so the main loop can
     strLength = byteCount;
     // do something about it:
-    if (inChar == '\n' or byteCount >= 32) {  // if null character reached or buffer is filled, then string is completed
+    if (inChar == '\n' or byteCount >= UART_MSG_SIZE) {  // if null character reached or buffer is filled, then string is completed
       stringComplete = true;
       byteCount = 0;
-      Serial.println("\nUART Data Received: ");
+    //  Serial.println("\n\nUART Data Received: ");
       Serial.print(inputString);
     }
   }
@@ -256,5 +260,5 @@ void loop() {
   }
 
   // wait for 3seconds to run the logic again
-  delay(3000);
+ // delay(3000);
 }
