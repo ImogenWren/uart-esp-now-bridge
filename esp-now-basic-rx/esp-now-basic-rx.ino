@@ -51,14 +51,16 @@ fadeLED led(PWM_PIN, LED_CH, PWM_FREQ, PWM_RESO);  // Constructor for ESP Boards
 // Structure example to send data
 // Must match the receiver structure
 typedef struct struct_message {
-  char msg[32];
+  char msg[64];
   int num;
   float data;
   bool flag;
 } struct_message;
 
+
+// Moved to local variable to avoid noisy data maybe
 // Create a struct_message called myData
-struct_message myData;
+//struct_message myData;
 
 
 
@@ -122,6 +124,7 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *incomingData, int data_l
   Serial.println("Last Packet Recv Data: ");
 #endif
   // parse data
+  struct_message myData;
   memcpy(&myData, incomingData, sizeof(myData));
   printMessage(myData);
 #if PRINT_RX_METADATA == true
