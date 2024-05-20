@@ -49,6 +49,7 @@ fadeLED led(PWM_PIN, LED_CH, PWM_FREQ, PWM_RESO);  // Constructor for ESP Boards
 #define MAX_BRIGHT 255
 #define TIME_MS 400
 
+#define DEBUG_WIRELESS_RX true
 
 
 // Structure example to send data
@@ -65,7 +66,7 @@ typedef struct struct_message {
 // Create a struct_message called myData
 //struct_message myData;
 
-
+struct_message testCluster = { "test test test", 5, 3.2, 0 };
 
 
 // Init ESP Now with fallback
@@ -127,9 +128,27 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *incomingData, int data_l
   Serial.println("Last Packet Recv Data: ");
 #endif
   // parse data
-  struct_message myData;
-  memcpy(&myData, incomingData, sizeof(myData));
-  printMessage(myData);
+ struct_message  myData;
+
+  // attempting to reset the string to avoid printing null
+  // myData.msg[0] = { 0 };
+  // Serial.println(myData.msg);
+  Serial.print(" Size of msg (pre): ");
+  Serial.print(sizeof(myData.msg));
+
+#if DEBUG_WIRELESS_RX == true
+  Serial.print("  data_len: ");
+  Serial.print(data_len);
+  Serial.print("  Size of myData Struct: ");
+  Serial.println(sizeof(myData));
+#endif
+
+  memcpy(&myData, incomingData, data_len);
+  myData.msg[sizeof(myData.msg)] = { 0 };
+  Serial.println(myData.msg);
+  Serial.print(" Size of msg (post): ");
+  Serial.print(sizeof(myData.msg));
+  //printMessage(myData);
 #if PRINT_RX_METADATA == true
   Serial.print("Bytes Received: ");
   Serial.print(data_len);
@@ -139,15 +158,23 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *incomingData, int data_l
 
 
 void printMessage(struct_message messageData) {
+  char messageBuffer[STRUCT_MSG_SIZE + 16];
 #if PRINT_MSG_ONLY == true
-  Serial.print(messageData.msg);  //  doesnt need to println
+  // strcpy(messageBuffer, messageData.msg);
+  sprintf(messageBuffer, "%s ", messageData.msg);
+  // Serial.print(messageData.msg);  //  doesnt need to println
+  Serial.print(messageBuffer);
 #else
-  char messageBuffer[STRUCT_MSG_SIZE];
   char floatBuffer[8];
   dtostrf(messageData.data, 4, 2, floatBuffer);
   sprintf(messageBuffer, "msg: %s, num: %i, data: %s, flag: %i", messageData.msg, messageData.num, floatBuffer, messageData.flag);
-  Serial.println(messageBuffer);
+  Serial.print(messageBuffer);
 #endif
+  for (int i = 0; i < sizeof(messageBuffer); i++) {  // empty the freaking buffer what why is this so hard
+    messageBuffer[i] = 0;
+  }
+  // check its empty
+  //  Serial.println(messageBuffer);
 }
 
 
@@ -157,5 +184,5 @@ void loop() {
     Serial.println("Waiting for ESPnow Data Packet..");
     flag = false;
   }
- // led.performFades();  // Heartbeat LED
+   led.performFades();  // Heartbeat LED
 }
