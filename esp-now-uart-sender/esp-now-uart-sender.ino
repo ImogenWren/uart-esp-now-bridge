@@ -87,10 +87,13 @@ esp_now_peer_info_t moduleRx;
 
 #include "esp-wireless.h"
 
+#define STRUCT_MSG_SIZE 128
+#define UART_MSG_SIZE 128
+
 // Structure example to send data
 // Must match the receiver structure
 typedef struct struct_message {
-  char msg[64];
+  char msg[STRUCT_MSG_SIZE];
   int num;
   float data;
   bool flag;
@@ -114,7 +117,8 @@ const int MySerialRX = 3;
 const int MySerialTX = 1;
 
 
-char inputString[32];  // specify max length of 32 chars? bytes?
+char inputString[STRUCT_MSG_SIZE];  // specify max length of 32 chars? bytes?
+char overflowBuffer[STRUCT_MSG_SIZE];
 bool stringComplete;
 
 byte byteCount = 0;
@@ -127,25 +131,32 @@ byte strLength;
   delay response. Multiple bytes of data may be available.
 */
 
-#define UART_MSG_SIZE 64
+
+bool bufferOverflow = false;
 
 void serialEvent() {
   // here we could use our MySerial normally
   while (mySerial.available() > 0) {
     // uint8_t byteFromSerial = MySerial.read();
     char inChar = (char)Serial.read();
-  //  Serial.print(inChar);
-  //  Serial.print("  byteCount: ");
-  //  Serial.println(byteCount);
+    //  Serial.print(inChar);
+    //  Serial.print("  byteCount: ");
+    //  Serial.println(byteCount);
     // add it to the inputString:
-    inputString[byteCount] = inChar;
-    byteCount++;  // if the incoming character is a newline, set a flag so the main loop can
-    strLength = byteCount;
+    if (byteCount <= STRUCT_MSG_SIZE) {
+      inputString[byteCount] = inChar;       // Compiler has issue with this line
+      byteCount++;  // if the incoming character is a newline, set a flag so the main loop can
+      strLength = byteCount;
+    } else {
+      Serial.print("UART Message Exceeds Buffer Size, filling overflow ");
+      overflowBuffer[byteCount = STRUCT_MSG_SIZE];
+    }
+
     // do something about it:
     if (inChar == '\n' or byteCount >= UART_MSG_SIZE) {  // if null character reached or buffer is filled, then string is completed
       stringComplete = true;
       byteCount = 0;
-    //  Serial.println("\n\nUART Data Received: ");
+      //  Serial.println("\n\nUART Data Received: ");
       Serial.print(inputString);
     }
   }
@@ -260,5 +271,5 @@ void loop() {
   }
 
   // wait for 3seconds to run the logic again
- // delay(3000);
+  // delay(3000);
 }

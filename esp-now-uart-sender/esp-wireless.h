@@ -32,7 +32,7 @@ void InitESPNow() {
 }
 
 
-
+bool initScan = false;
 
 // Scan for moduleRxs in AP mode
 void ScanForRx() {
@@ -42,6 +42,7 @@ void ScanForRx() {
   memset(&moduleRx, 0, sizeof(moduleRx));
 //  Serial.println("");
   if (scanResults == 0) {
+    
     Serial.println("No WiFi devices in AP Mode found");
   } else {
 #if PRINT_SCAN_SUMMARY == true
@@ -102,9 +103,13 @@ void ScanForRx() {
   if (moduleRxFound) {
 #if PRINT_MODULEFOUND == true
     Serial.println("moduleRx Found, processing..");
+    initScan = false;
 #endif
   } else {
+    if (!initScan){
     Serial.println("moduleRx Not Found, trying again.");
+    initScan = true;
+    }
   }
 
   // clean up ram

@@ -34,6 +34,7 @@
 
 #define CHANNEL 1
 
+#define STRUCT_MSG_SIZE 128
 #define PRINT_RX_METADATA false
 #define PRINT_MSG_ONLY true
 
@@ -48,10 +49,12 @@ fadeLED led(PWM_PIN, LED_CH, PWM_FREQ, PWM_RESO);  // Constructor for ESP Boards
 #define MAX_BRIGHT 255
 #define TIME_MS 400
 
+
+
 // Structure example to send data
 // Must match the receiver structure
 typedef struct struct_message {
-  char msg[64];
+  char msg[STRUCT_MSG_SIZE];
   int num;
   float data;
   bool flag;
@@ -82,7 +85,7 @@ void InitESPNow() {
 // config AP SSID
 void configDeviceAP() {
   const char *SSID = "moduleRx";
-  bool result = WiFi.softAP(SSID, "Slave_1_Password", CHANNEL, 0);
+  bool result = WiFi.softAP(SSID, "GLOWBOT", CHANNEL, 0);
   if (!result) {
     Serial.println("AP Config failed.");
   } else {
@@ -139,7 +142,7 @@ void printMessage(struct_message messageData) {
 #if PRINT_MSG_ONLY == true
   Serial.print(messageData.msg);  //  doesnt need to println
 #else
-  char messageBuffer[64];
+  char messageBuffer[STRUCT_MSG_SIZE];
   char floatBuffer[8];
   dtostrf(messageData.data, 4, 2, floatBuffer);
   sprintf(messageBuffer, "msg: %s, num: %i, data: %s, flag: %i", messageData.msg, messageData.num, floatBuffer, messageData.flag);
