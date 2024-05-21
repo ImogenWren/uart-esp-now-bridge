@@ -29,6 +29,23 @@
          Any devices can act as master or salve.
 */
 
+/*
+Opening a Port on Ubuntu
+
+Check port name with
+`sudo dmesg | grep tty`
+
+https://wiki.emacinc.com/wiki/Getting_Started_With_Minicom
+Outputs:
+ttyAMA1
+ttyUSB0
+
+
+use putty?
+https://stackoverflow.com/questions/5347962/how-do-i-connect-to-a-terminal-to-a-serial-to-usb-device-on-ubuntu-10-10-maveri
+
+*/
+
 #include <esp_now.h>
 #include <WiFi.h>
 
