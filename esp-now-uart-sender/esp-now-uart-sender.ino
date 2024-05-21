@@ -87,8 +87,8 @@ esp_now_peer_info_t moduleRx;
 
 #include "esp-wireless.h"
 
-#define STRUCT_MSG_SIZE 128
-#define UART_MSG_SIZE 128
+#define STRUCT_MSG_SIZE 150
+#define UART_MSG_SIZE 150
 
 // Structure example to send data
 // Must match the receiver structure

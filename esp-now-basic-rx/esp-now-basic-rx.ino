@@ -51,7 +51,7 @@ https://stackoverflow.com/questions/5347962/how-do-i-connect-to-a-terminal-to-a-
 
 #define CHANNEL 1
 
-#define STRUCT_MSG_SIZE 128
+#define STRUCT_MSG_SIZE 150
 #define PRINT_MSG_ONLY true
 #define PRINT_RX_METADATA false
 #define DEBUG_WIRELESS_RX false
