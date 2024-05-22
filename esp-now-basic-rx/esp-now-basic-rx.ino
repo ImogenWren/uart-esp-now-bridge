@@ -74,8 +74,10 @@ fadeLED led(PWM_PIN, LED_CH, PWM_FREQ, PWM_RESO);  // Constructor for ESP Boards
 // Must match the receiver structure
 typedef struct struct_message {
   char msg[STRUCT_MSG_SIZE];
-  int num;
-  float data;
+  int num_0;
+  int num_1;
+  int num_2;
+  int num_3;
   bool flag;
 } struct_message;
 
@@ -84,7 +86,7 @@ typedef struct struct_message {
 // Create a struct_message called myData
 //struct_message myData;
 
-struct_message testCluster = { "test test test", 5, 3.2, 0 };
+struct_message testCluster = { "test test test", 1, 2, 3, 4, 0 };
 
 
 // Init ESP Now with fallback

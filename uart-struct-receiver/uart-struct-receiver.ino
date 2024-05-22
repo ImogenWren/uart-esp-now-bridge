@@ -77,7 +77,6 @@ void recvStructWithKnownLength() {
     byte rb;
     byte * structStart;
     structStart = reinterpret_cast <byte *> (&rxData);
-
     if (Serial.available() >= rxDataLen + 1 and newData == false) {
         rb = Serial.read();
 
@@ -90,7 +89,6 @@ void recvStructWithKnownLength() {
             while (Serial.available() > 0) {
                 byte dumpTheData = Serial.read();
             }
-
             newData = true;
         }
     }
