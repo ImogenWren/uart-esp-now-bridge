@@ -1,6 +1,12 @@
 #include <HardwareSerial.h>
 
-HardwareSerial mySerial(0);  // define a Serial for UART1
+
+// Trying using serial2 instead
+// Note I belive Hardware serial used a callback function, but the operation of this was unclear and if this method works with a simple loop, and no additional library it seems like the most sensible way of doing it.
+//HardwareSerial mySerial(0);  // define a Serial for UART1
+//const int MySerialRX = 3;
+//const int MySerialTX = 1;
+
 const int MySerialRX = 16;
 const int MySerialTX = 17;
 
@@ -10,6 +16,9 @@ const int MySerialTX = 17;
 char inputString[STRUCT_MSG_SIZE];  // specify max length of 32 chars? bytes?
 char overflowBuffer[STRUCT_MSG_SIZE];
 bool stringComplete;
+
+
+#define PRINT_UART_RX true
 
 
 byte byteCount = 0;
@@ -31,10 +40,12 @@ void trimCharArray(char *inArray) {
 
 
 void serialEvent() {
+//  Serial.println("function called");
   // here we could use our MySerial normally
-  while (mySerial.available() > 0) {
+  while (Serial2.available() > 0) {
+   // Serial.println("Serial2 Available");
     // uint8_t byteFromSerial = MySerial.read();
-    char inChar = (char)Serial.read();
+    char inChar = (char)Serial2.read();
     //  Serial.print(inChar);
     //  Serial.print("  byteCount: ");
     //  Serial.println(byteCount);
@@ -69,11 +80,13 @@ void serialEvent() {
 
 void setup() {
   Serial.begin(115200);
-  Serial.print("ESPnow - UART sender Starting");
- mySerial.begin(115200, SERIAL_8N1, MySerialRX, MySerialTX);
+  Serial.println("ESPnow - UART sender Starting");
+  Serial2.begin(115200, SERIAL_8N1, MySerialRX, MySerialTX);
+  Serial.println("Testing");
 }
 
 
-void loop(){
-
+void loop() {
+  // Serial.println("Testing");
+  serialEvent();
 }

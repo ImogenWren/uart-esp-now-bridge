@@ -118,7 +118,8 @@ bool flag = false;
 
 
 #include <HardwareSerial.h>
-
+// Consider using Serial2 if any more issues with hardware serial!
+// issue before did turn out to be a typo! whoops
 HardwareSerial mySerial(1);  // define a Serial for UART1
 const int MySerialRX = 16;
 const int MySerialTX = 17;
@@ -142,10 +143,11 @@ byte strLength;
 bool bufferOverflow = false;
 
 void serialEvent() {
+  Serial.println("TESTING THIS SHIT HERE");
   // here we could use our MySerial normally
   while (mySerial.available() > 0) {
     // uint8_t byteFromSerial = MySerial.read();
-    char inChar = (char)Serial.read();
+    char inChar = (char)mySerial.read();
     //  Serial.print(inChar);
     //  Serial.print("  byteCount: ");
     //  Serial.println(byteCount);
