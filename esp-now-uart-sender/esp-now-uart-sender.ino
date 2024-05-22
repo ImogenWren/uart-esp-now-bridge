@@ -119,9 +119,9 @@ bool flag = false;
 
 #include <HardwareSerial.h>
 
-HardwareSerial mySerial(0);  // define a Serial for UART1
-const int MySerialRX = 3;
-const int MySerialTX = 1;
+HardwareSerial mySerial(1);  // define a Serial for UART1
+const int MySerialRX = 16;
+const int MySerialTX = 17;
 
 
 char inputString[STRUCT_MSG_SIZE];  // specify max length of 32 chars? bytes?
