@@ -15,15 +15,19 @@ Might turn into a class later idk.
 
 #include <esp_now.h>
 
-
+void trimCharArray(char *inArray) {
+  char nullChar[2] = "\0";              // This must be 2 char long
+  int index = strcspn(inArray, "\n");  // Find the location of the newline char
+  inArray[index] = *nullChar;
+}
 
 // Init ESP Now with fallback
 void InitESPNow() {
   WiFi.disconnect();
   if (esp_now_init() == ESP_OK) {
-    Serial.println("ESPNow Init Success");
+    Serial.println("ESP32: ESPNow Init Success");
   } else {
-    Serial.println("ESPNow Init Failed");
+    Serial.println("ESP32: ESPNow Init Failed");
     // Retry InitESPNow, add a counte and then restart?
     // InitESPNow();
     // or Simply Restart
@@ -42,11 +46,12 @@ void ScanForRx() {
   memset(&moduleRx, 0, sizeof(moduleRx));
 //  Serial.println("");
   if (scanResults == 0) {
-    
-    Serial.println("No WiFi devices in AP Mode found");
+#if WIFI_DEBUG == true    
+    Serial.println("ESP32: No WiFi devices in AP Mode found");
+#endif
   } else {
 #if PRINT_SCAN_SUMMARY == true
-    Serial.print("Found ");
+    Serial.print("ESP32: Found ");
     Serial.print(scanResults);
     Serial.println(" devices ");
 #endif
@@ -70,7 +75,7 @@ void ScanForRx() {
       if (SSID.indexOf("moduleRx") == 0) {
         // SSID of interest
       #if PRINT_SCAN_SUMMARY == true
-        Serial.println("Found a moduleRx.");
+        Serial.println("ESP32: Found a moduleRx.");
         Serial.print(i + 1);
         Serial.print(": ");
         Serial.print(SSID);
@@ -102,12 +107,14 @@ void ScanForRx() {
   }
   if (moduleRxFound) {
 #if PRINT_MODULEFOUND == true
-    Serial.println("moduleRx Found, processing..");
+    Serial.println("ESP32: moduleRx Found, processing..");
     initScan = false;
 #endif
   } else {
     if (!initScan){
-    Serial.println("moduleRx Not Found, trying again.");
+#if PRINT_MODULEFOUND == true
+    Serial.println("ESP32: moduleRx Not Found, trying again.");
+#endif
     initScan = true;
     }
   }
@@ -119,7 +126,7 @@ void ScanForRx() {
 
 void deletePeer() {
   esp_err_t delStatus = esp_now_del_peer(moduleRx.peer_addr);
-  Serial.print("moduleRx Delete Status: ");
+  Serial.print("ESP32: moduleRx Delete Status: ");
   if (delStatus == ESP_OK) {
     // Delete success
     Serial.println("Success");
@@ -145,14 +152,14 @@ bool manageRx() {
       deletePeer();
     }
 #if PRINT_REMOTE_STATUS == true
-    Serial.print("moduleRx Status: ");
+    Serial.print("ESP32: moduleRx Status: ");
 #endif
     // check if the peer exists
     bool exists = esp_now_is_peer_exist(moduleRx.peer_addr);
     if (exists) {
       // moduleRx already paired.
 #if PRINT_REMOTE_STATUS == true
-      Serial.println("Already Paired");
+      Serial.println("ESP32: Already Paired");
 #endif
       return true;
     } else {
@@ -160,7 +167,7 @@ bool manageRx() {
       esp_err_t addStatus = esp_now_add_peer(&moduleRx);
       if (addStatus == ESP_OK) {
         // Pair success
-        Serial.println("Pair success");
+        Serial.println("ESP32: Pair success");
         return true;
       } else if (addStatus == ESP_ERR_ESPNOW_NOT_INIT) {
         // How did we get so far!!
@@ -185,7 +192,7 @@ bool manageRx() {
     }
   } else {
     // No moduleRx found to process
-    Serial.println("No moduleRx found to process");
+    Serial.println("ESP32: No moduleRx found to process");
     return false;
   }
 }

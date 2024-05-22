@@ -79,11 +79,18 @@ esp_now_peer_info_t moduleRx;
 #define PRINT_SCAN_SUMMARY false
 #define PRINTSCANRESULTS false
 #define PRINT_MODULEFOUND false
+#define WIFI_DEBUG false
 
 #define DELETEBEFOREPAIR 0
 
 #define PRINT_TX_STATS false
+#define PRINT_TX_STATUS false
 #define PRINT_REMOTE_STATUS false
+
+#define PRINT_UART_RX true
+#define PRINT_ESPNOW_TX false
+
+
 
 #include "esp-wireless.h"
 
@@ -148,7 +155,7 @@ void serialEvent() {
       byteCount++;  // if the incoming character is a newline, set a flag so the main loop can
       strLength = byteCount;
     } else {
-      Serial.print("UART Message Exceeds Buffer Size, filling overflow ");
+      Serial.print("ESP32: UART Message Exceeds Buffer Size, filling overflow ");
       overflowBuffer[byteCount = STRUCT_MSG_SIZE];
     }
 
@@ -157,7 +164,10 @@ void serialEvent() {
       stringComplete = true;
       byteCount = 0;
       //  Serial.println("\n\nUART Data Received: ");
-      Serial.print(inputString);
+        trimCharArray(inputString);   // added 22/05/2024
+#if PRINT_UART_RX == true
+      Serial.println(inputString);
+#endif
     }
   }
 }
@@ -183,10 +193,13 @@ void sendData() {
 
     // send data
     const uint8_t *peer_addr = moduleRx.peer_addr;
+#if PRINT_ESPNOW_TX == true  
     Serial.print("Sending: ");
     Serial.println(myData.msg);
+#endif
     esp_err_t result = esp_now_send(peer_addr, (uint8_t *)&myData, sizeof(myData));
 
+#if PRINT_TX_STATUS == true
     // Analise result
     Serial.print("Send Status: ");
     if (result == ESP_OK) {
@@ -205,6 +218,7 @@ void sendData() {
     } else {
       Serial.println("Not sure what happened");
     }
+#endif
     stringComplete = false;
   }
 }
